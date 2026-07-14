@@ -1,0 +1,6 @@
+# Local Claude Code project brief — not part of the published project
+CLAUDE.md
+
+# Build artifacts and dependencies
+node_modules/
+dist/
