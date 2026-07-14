@@ -1,0 +1,21 @@
+{
+  "name": "pasteguard",
+  "version": "0.1.0",
+  "description": "Browser extension to protect against copy-pasting sensitive data into AI chat inputs.",
+  "scripts": {
+    "build": "rm -rf dist && npx tsc && cp manifest.json dist/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirbunkle/pasteguard.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kirbunkle/pasteguard/issues"
+  },
+  "homepage": "https://github.com/kirbunkle/pasteguard#readme",
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}
