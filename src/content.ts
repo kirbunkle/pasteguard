@@ -1,9 +1,23 @@
 let promptArea: HTMLElement | null = null;
-const isChatGPT = location.hostname.includes( "chatgpt.com" );
-const isClaude = location.hostname.includes( "claude.ai" );
+const isChatGPT: boolean = location.hostname.includes( "chatgpt.com" );
+const isClaude: boolean = location.hostname.includes( "claude.ai" );
+const secrets: Array<RegExp> = [
+    /\b(AKIA|ASIA)[0-9A-Z]{16}\b/, //AWS Keys
+    /\bghp_[A-Za-z0-9]{36}\b/,     //Github tokens
+    /\bsk-[A-Za-z0-9_-]{20,}/,     //OpenAI tokens
+];
 
-const inputEventListener: EventListener = ( _evt: Event ) => {
-    console.log( promptArea?.innerText );
+const inputEventListener = ( _evt: InputEvent ) => {
+    if( promptArea ) {
+        checkText( promptArea.innerText );
+    }
+};
+
+const pasteEventListener = ( evt: ClipboardEvent ) => {
+    const text = evt.clipboardData?.getData("text/plain");
+    if( text ) {
+        checkText( text );
+    }
 };
 
 function ensureAttached() {
@@ -13,6 +27,7 @@ function ensureAttached() {
 
     if( promptArea ) {
         promptArea.removeEventListener( "input", inputEventListener );
+        promptArea.removeEventListener( "paste", pasteEventListener );
         promptArea = null;
     }
 
@@ -24,7 +39,16 @@ function ensureAttached() {
 
     if( promptArea ) {
         promptArea.addEventListener( "input", inputEventListener );
+        promptArea.addEventListener( "paste", pasteEventListener );
     }
+}
+
+function checkText( text: string ) {
+    secrets.forEach( ( secret: RegExp ) => {
+        if( secret.test( text ) ) {
+            console.log( `Found: ${secret}` );
+        }
+    } );
 }
 
 if( isChatGPT || isClaude ) {
