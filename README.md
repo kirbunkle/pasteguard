@@ -13,5 +13,4 @@ https://github.com/user-attachments/assets/96604499-3b36-4b01-9819-146c5ed55fbc
 ### Planned Features
 - Highlighting text to show where the match was found.
 - On-hover description detailing why the text is risky to send.
-- Options to ignore or replace the matching text with "<Redacted>".
-
+- Options to ignore or replace the matching text with "(Redacted)".
