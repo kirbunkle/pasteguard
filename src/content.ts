@@ -1,22 +1,22 @@
 let promptArea: HTMLElement | null = null;
 const isChatGPT: boolean = location.hostname.includes( "chatgpt.com" );
 const isClaude: boolean = location.hostname.includes( "claude.ai" );
-const secrets: Array<RegExp> = [
-    /\b(AKIA|ASIA)[0-9A-Z]{16}\b/, //AWS Keys
-    /\bghp_[A-Za-z0-9]{36}\b/,     //Github tokens
-    /\bsk-[A-Za-z0-9_-]{20,}/,     //OpenAI tokens
+const secrets: Array<{ name: string, regex: RegExp, foundStrings: Array<string> }> = [
+    { name: "aws", regex: /\b(AKIA|ASIA)[0-9A-Z]{16}\b/g, foundStrings: [] }, //AWS Keys
+    { name: "github", regex: /\bghp_[A-Za-z0-9]{36}\b/g, foundStrings: [] },  //Github tokens
+    { name: "openAI", regex: /\bsk-[A-Za-z0-9_-]{20,}/g, foundStrings: [] },  //OpenAI tokens
 ];
 
 const inputEventListener = ( _evt: InputEvent ) => {
     if( promptArea ) {
-        checkText( promptArea.innerText );
+        checkText( promptArea.innerText, "input" );
     }
 };
 
 const pasteEventListener = ( evt: ClipboardEvent ) => {
     const text = evt.clipboardData?.getData("text/plain");
     if( text ) {
-        checkText( text );
+        checkText( text, "paste" );
     }
 };
 
@@ -43,12 +43,32 @@ function ensureAttached() {
     }
 }
 
-function checkText( text: string ) {
-    secrets.forEach( ( secret: RegExp ) => {
-        if( secret.test( text ) ) {
-            console.log( `Found: ${secret}` );
+function checkText( text: string, source: "input" | "paste" ) {
+    const matches: Match[] = [];
+    secrets.forEach( ( secret: { name: string, regex: RegExp, foundStrings: Array<string> } ) => {
+        const results: RegExpMatchArray | null = text.match( secret.regex );
+
+        if( results ) {
+            results.forEach( ( match: string ) => {
+                if( !secret.foundStrings.includes( match ) ) {
+                    secret.foundStrings.push( match );
+                    matches.push( {
+                        name: secret.name,
+                        host: location.hostname,
+                        source: source,
+                        timestamp: Date.now(),
+                    } );
+                }
+            } );
         }
     } );
+    if( matches.length > 0 ) {
+        sendMessage( matches );
+    }
+}
+
+function sendMessage( matches: Match[] ) {
+    chrome.runtime.sendMessage( { matches: matches } ).catch( console.error );
 }
 
 if( isChatGPT || isClaude ) {

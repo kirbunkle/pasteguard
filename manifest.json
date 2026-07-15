@@ -6,7 +6,8 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": [],
+  "permissions": ["storage"],
+  "action": {},
   "content_scripts": [
     {
       "matches": ["https://claude.ai/*", "https://chatgpt.com/*"],
